@@ -26,15 +26,15 @@ const loadPhones = async(searchText,datalimit) =>{
         warningSection.classList.add('d-none');
     }
     for(const phone of phones){
-        console.log(phone);
         const div = document.createElement('div');
         div.classList.add('col');
         div.innerHTML = `
         <div class="card">
         <img src="${phone.image}" class="card-img-top p-3" alt="...">
             <div class="card-body">
-            <h5 class="card-title">${phone.phone_name}</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <h5 class="card-title">${phone.phone_name}</h5>
+                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <button class="btn btn-primary" id="btn-show-details" onclick="loadPhoneDetails('${phone.slug}')" data-bs-toggle="modal" data-bs-target="#phoneDetailModal">Show Details</button>
             </div>
         </div>
         `;
@@ -57,6 +57,12 @@ const processSearch = (dataLimit) =>{
  document.getElementById('button-addon2').addEventListener('click',function(){
     processSearch(12);
  });
+//  Search with ENTER Key
+document.getElementById('search-field').addEventListener('keypress',function(e){
+    if(e.key == 'Enter'){
+        processSearch(12);
+    }
+ });
 // Spinner
  const toggleSpinner = isLoading =>{
     const spinner = document.getElementById('spinner-section');
@@ -71,3 +77,32 @@ const processSearch = (dataLimit) =>{
 document.getElementById('btn-show-all').addEventListener('click',function(){
     processSearch();
 });
+// Load Phone Details
+const loadPhoneDetails = async (id) =>{
+    const url = `https://openapi.programming-hero.com/api/phone/${id}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    showPhoneDetails(data.data);
+};
+// Show Phone Details
+const showPhoneDetails = (phone) =>{
+    console.log(phone);
+    const modalTitle = document.getElementById('phoneDetailModalLabel');
+    modalTitle.innerText = phone.name;
+    const modalDetails = document.getElementById('modal-details');
+    modalDetails.innerHTML = `
+        <img src="${phone.image}" class=" ">
+        <p>
+            <b>Brand:</b> ${phone.brand ? phone.brand : 'Not Found!'} <br>
+            <b>Release Date:</b> ${phone.releaseDate ? phone.releaseDate : 'Not Found!'}  <br> <br>
+            <b>Technical Specification:</b> <br>
+            <b>Chipset:</b> ${phone.mainFeatures.chipSet ? phone.mainFeatures.chipSet : 'Not Found'} <br>
+            <b>Storage:</b> ${phone.mainFeatures.storage ? phone.mainFeatures.storage : 'Not Found!'} <br>
+            <b>Display:</b> ${phone.mainFeatures.displaySize ? phone.mainFeatures.displaySize : 'Not Found'} 
+        </p>
+    `;
+};
+
+
+
+loadPhones('apple');
